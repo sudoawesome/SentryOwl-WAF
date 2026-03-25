@@ -1,0 +1,2232 @@
+{
+  "metadata": {
+    "name": "SentryOwl Default Ruleset",
+    "version": "1.0.0",
+    "updated": "2026-03-23",
+    "description": "Default firewall rules for SentryOwl Firewall plugin"
+  },
+  "settings": {
+    "max_request_length": 1000,
+    "max_referrer_length": 1000,
+    "block_long_requests": true
+  },
+  "rules": [
+    {
+      "_comment": "=== REQUEST_URI: Path Traversal & File Inclusion (1000-1099) ==="
+    },
+    {
+      "id": 1000,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\.\\.\\/){2,}",
+      "transformations": [
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Path traversal attempt",
+      "tags": [
+        "traversal",
+        "lfi"
+      ]
+    },
+    {
+      "id": 1001,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:etc\\/(?:passwd|shadow|hosts|motd))",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "System file access attempt",
+      "tags": [
+        "traversal",
+        "lfi",
+        "system"
+      ]
+    },
+    {
+      "id": 1002,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:usr\\/bin\\/(?:perl|python|cc|id|kill))",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "System binary access attempt",
+      "tags": [
+        "rce",
+        "system"
+      ]
+    },
+    {
+      "id": 1003,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:var\\/lib\\/php|self\\/environ)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Server environment access attempt",
+      "tags": [
+        "lfi",
+        "system"
+      ]
+    },
+    {
+      "id": 1004,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/\\.env(?:\\b|$)",
+      "transformations": [
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Environment file access attempt",
+      "tags": [
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1005,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "wp-config\\.php",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "wp-config.php access attempt",
+      "tags": [
+        "cms",
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1006,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\/|\\.)(?:s?ftp-?)?conf(?:ig)?(?:uration)?\\.",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Configuration file access attempt",
+      "tags": [
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1007,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:wwwroot|makefile|document_root|error_log)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Sensitive path access attempt",
+      "tags": [
+        "disclosure",
+        "system"
+      ]
+    },
+    {
+      "id": 1008,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\.\\.\\\\){2,}",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Backslash path traversal attempt",
+      "tags": [
+        "traversal",
+        "lfi",
+        "windows"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: Dangerous File Extensions (1100-1149) ==="
+    },
+    {
+      "id": 1100,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\.(?:bak|bash|bat|cfg|cmd|conf|db|dll|ds_store|exe|hta|htp|ini|jsp|msi|mysql|pass|pwd|sql)(?:\\?|$)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Dangerous file extension access",
+      "tags": [
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1101,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\.(?:asp|cgi)(?:\\?|$)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Non-CMS script extension access",
+      "tags": [
+        "probe",
+        "suspicious"
+      ]
+    },
+    {
+      "id": 1102,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/\\.(?:git|svn)(?:\\/|$)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Version control directory access attempt",
+      "tags": [
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1103,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\.htaccess|\\.htpasswd|\\.mysql-select-db)(?:\\/)?$",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Server config file access attempt",
+      "tags": [
+        "disclosure",
+        "sensitive-file"
+      ]
+    },
+    {
+      "id": 1104,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:db|master|sql|wp|www|wwwroot)\\.(?:gz|zip|tar|rar|7z|bz2)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Database or site backup access attempt",
+      "tags": [
+        "disclosure",
+        "backup"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: Code Execution & Injection (1200-1299) ==="
+    },
+    {
+      "id": 1200,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:eval|assert|preg_replace\\s*\\(.*e\\s*[,)])\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Code evaluation attempt",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 1201,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:curl_exec|shell_exec|passthru|system|proc_open|popen|exec)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "OS command execution attempt",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 1202,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:fopen|fwrite|fputs|fclose|fsockopen|pfsockopen|fgets|file_get_contents|file_put_contents)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "File operation function in URI",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 1203,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:phpinfo|posix_(?:kill|mkfifo|setpgid|setsid|setuid)|proc_(?:close|get_status|nice|terminate))\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Dangerous PHP function in URI",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 1204,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "base64_(?:encode|decode)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Base64 function in URI",
+      "tags": [
+        "evasion",
+        "injection"
+      ]
+    },
+    {
+      "id": 1206,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\(null\\)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Null injection attempt",
+      "tags": [
+        "injection"
+      ]
+    },
+    {
+      "id": 1207,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:benchmark|sleep)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL timing attack attempt",
+      "tags": [
+        "sqli",
+        "dos"
+      ]
+    },
+    {
+      "id": 1210,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\$\\{jndi:",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Log4Shell JNDI injection attempt",
+      "tags": [
+        "rce",
+        "log4shell",
+        "jndi",
+        "cve-2021-44228"
+      ]
+    },
+    {
+      "id": 1211,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command chaining attempt",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 1212,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\$\\{?IFS\\}?",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell IFS variable bypass attempt",
+      "tags": [
+        "rce",
+        "evasion",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 1213,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\$\\([^)]+\\)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command substitution attempt",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 1214,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "['\\\"];\\s*--",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL comment termination pattern",
+      "tags": [
+        "sqli",
+        "injection",
+        "auth-bypass"
+      ]
+    },
+    {
+      "id": 1215,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "['\\\"](?:\\s+(?:AND|OR)\\s+['\\\"][^'\\\"]*['\\\"]=['\\\"]|(?:\\s+(?:AND|OR)\\s+\\d+=\\d+))",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Boolean-based blind SQL injection",
+      "tags": [
+        "sqli",
+        "injection",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 1216,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "waitfor\\s+delay\\s",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "MSSQL WAITFOR DELAY injection",
+      "tags": [
+        "sqli",
+        "dos",
+        "mssql"
+      ]
+    },
+    {
+      "id": 1217,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "information_schema\\.",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "SQL information_schema access attempt",
+      "tags": [
+        "sqli",
+        "injection",
+        "enumeration"
+      ]
+    },
+    {
+      "id": 1227,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:database|db_name|schema_name)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL database name function in URI",
+      "tags": [
+        "sqli",
+        "enumeration"
+      ]
+    },
+    {
+      "id": 1228,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\bcase\\s+when\\b.*?\\bthen\\b|select\\b.*?\\bhaving\\s+)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL conditional injection attempt (CASE/WHEN/HAVING)",
+      "tags": [
+        "sqli",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 1218,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\xe2\\x80[\\x8b-\\x8d]|\\xef\\xbb\\xbf",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Zero-width Unicode character in URI (evasion)",
+      "tags": [
+        "evasion",
+        "unicode"
+      ]
+    },
+    {
+      "id": 1225,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "169\\.254\\.169\\.254",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "SSRF cloud metadata endpoint access attempt",
+      "tags": [
+        "ssrf",
+        "cloud-metadata"
+      ]
+    },
+    {
+      "id": 1226,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:__proto__|constructor\\s*(?:\\.|\\]\\s*\\[)\\s*prototype)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "JavaScript prototype pollution attempt",
+      "tags": [
+        "injection",
+        "prototype-pollution"
+      ]
+    },
+    {
+      "id": 1219,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting)\\s*=)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "HTML event handler injection attempt",
+      "tags": [
+        "xss",
+        "injection",
+        "event-handler"
+      ]
+    },
+    {
+      "id": 1220,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\(|\\.(?:call|apply|bind)\\s*\\()",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "JavaScript dialog function in URI",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 1221,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "javascript\\s*:",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript URI scheme injection",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 1222,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "&#(?:x[0-9a-f]+|0*\\d+);",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "HTML numeric entity in URI (evasion)",
+      "tags": [
+        "xss",
+        "evasion"
+      ]
+    },
+    {
+      "id": 1223,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "autofocus\\s*=",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "HTML autofocus attribute injection",
+      "tags": [
+        "xss",
+        "injection",
+        "event-handler"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: Protocol & Scheme Abuse (1300-1349) ==="
+    },
+    {
+      "id": 1300,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:https?|ftp|file|php):",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Protocol scheme in URI path",
+      "tags": [
+        "rfi",
+        "injection"
+      ]
+    },
+    {
+      "id": 1301,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\/|%2f)localhost",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Localhost reference in URI",
+      "tags": [
+        "ssrf",
+        "probe"
+      ]
+    },
+    {
+      "id": 1302,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\/|%2f)pingserver",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Pingserver reference in URI",
+      "tags": [
+        "ssrf",
+        "probe"
+      ]
+    },
+    {
+      "id": 1303,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "crossdomain\\.",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Crossdomain policy probe",
+      "tags": [
+        "probe"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: Malicious Patterns & Shells (1400-1499) ==="
+    },
+    {
+      "id": 1400,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:c99|r57|b374k|wso|php|web|b4tm4n|g00nshell|phpspy|simattacker|ashiyane|azrail|lostdc|nghshell|ru24post)shell",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Web shell access attempt",
+      "tags": [
+        "shell",
+        "backdoor"
+      ]
+    },
+    {
+      "id": 1401,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:0day|vuln|sqlpatch|indoxploi)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Known exploit path access",
+      "tags": [
+        "exploit",
+        "probe"
+      ]
+    },
+    {
+      "id": 1403,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:db|mysql)-?admin",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Database admin tool access attempt",
+      "tags": [
+        "probe",
+        "disclosure"
+      ]
+    },
+    {
+      "id": 1404,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:f?ckfinder|fck\\/|f?ckeditor|fullclick)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Vulnerable editor probe",
+      "tags": [
+        "probe",
+        "exploit"
+      ]
+    },
+    {
+      "id": 1405,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:force-download|framework\\/main)\\.php",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Exploit framework probe",
+      "tags": [
+        "probe",
+        "exploit"
+      ]
+    },
+    {
+      "id": 1406,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/(?:vbforum|vbulletin)(?:\\/)?",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 5,
+      "message": "vBulletin probe",
+      "tags": [
+        "probe"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: Encoding & Evasion (1500-1549) ==="
+    },
+    {
+      "id": 1500,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:%00|0x00|\\{0\\})",
+      "transformations": [],
+      "action": "block",
+      "severity": 2,
+      "message": "Null byte injection attempt",
+      "tags": [
+        "evasion",
+        "injection"
+      ]
+    },
+    {
+      "id": 1501,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:<|>|\\^|`)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Suspicious character in URI",
+      "tags": [
+        "injection",
+        "xss"
+      ]
+    },
+    {
+      "id": 1502,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:\\+{3,}|-{6,}|,{3,}|\\?{3,})",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 5,
+      "message": "Character repetition abuse",
+      "tags": [
+        "probe",
+        "evasion"
+      ]
+    },
+    {
+      "id": 1503,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "@@|\\/&&|\\/=|\\{\\$",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Suspicious operator sequence in URI",
+      "tags": [
+        "injection",
+        "probe"
+      ]
+    },
+    {
+      "id": 1504,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/\\*.*\\*\\/",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "SQL comment evasion in URI",
+      "tags": [
+        "sqli",
+        "evasion"
+      ]
+    },
+    {
+      "id": 1505,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:set-cookie:|header:)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "HTTP header injection attempt",
+      "tags": [
+        "injection"
+      ]
+    },
+    {
+      "_comment": "=== REQUEST_URI: CMS-Specific (1600-1699) ==="
+    },
+    {
+      "id": 1600,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "^\\/wp-admin\\/(?:load-styles|load-scripts)\\.php.*load\\[\\]=(?:[^&,]*,){20,}",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "trim",
+        "normalizePath",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "CMS DoS attack attempt (CVE-2018-6389)",
+      "tags": [
+        "cms",
+        "dos",
+        "cve-2018-6389"
+      ]
+    },
+    {
+      "id": 1603,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/wp-content\\/.*\\.php(?:\\?|$)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Direct PHP execution in wp-content directory",
+      "tags": [
+        "cms",
+        "rce",
+        "shell"
+      ]
+    },
+    {
+      "id": 1605,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "^\\/wp-admin\\/includes\\/",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Direct access to wp-admin includes directory",
+      "tags": [
+        "cms",
+        "hardening"
+      ]
+    },
+    {
+      "id": 1606,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "^\\/wp-includes\\/[^\\/]+\\.php$",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Direct PHP execution in wp-includes root",
+      "tags": [
+        "cms",
+        "hardening"
+      ]
+    },
+    {
+      "id": 1607,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "^\\/wp-includes\\/js\\/tinymce\\/langs\\/.+\\.php",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "PHP execution in TinyMCE langs directory",
+      "tags": [
+        "cms",
+        "hardening"
+      ]
+    },
+    {
+      "id": 1608,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "^\\/wp-includes\\/theme-compat\\/",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Direct access to theme-compat directory",
+      "tags": [
+        "cms",
+        "hardening"
+      ]
+    },
+    {
+      "_comment": "=== QUERY_STRING: Injection & Tampering (2000-2099) ==="
+    },
+    {
+      "id": 2001,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "concat\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL CONCAT function in query string",
+      "tags": [
+        "sqli",
+        "injection"
+      ]
+    },
+    {
+      "id": 2002,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "order\\s+by\\s+\\d+--",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL ORDER BY injection probe",
+      "tags": [
+        "sqli",
+        "injection"
+      ]
+    },
+    {
+      "id": 2003,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:benchmark|sleep)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL timing attack in query string",
+      "tags": [
+        "sqli",
+        "dos"
+      ]
+    },
+    {
+      "id": 2004,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:\\(0x|0x3c62723e)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Hex encoding injection attempt",
+      "tags": [
+        "injection",
+        "evasion"
+      ]
+    },
+    {
+      "id": 2005,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:;!--=|\\(\\)\\}|:\\;\\}\\;)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Injection signature in query string",
+      "tags": [
+        "injection",
+        "xss"
+      ]
+    },
+    {
+      "_comment": "=== QUERY_STRING: PHP & Server Manipulation (2100-2199) ==="
+    },
+    {
+      "id": 2100,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$_(?:env|files|get|post|request|server|session)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP superglobal access attempt",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 2101,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:globals|request)(?:=|\\[)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Global variable override attempt",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 2102,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:allow_url_(?:fopen|include)|auto_prepend_file|disable_functions?|open_basedir|safe_mode)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP configuration override attempt",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 2103,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:file_(?:get|put)_contents|proc_open|gethostbyname|user_func_array)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Dangerous PHP function in query string",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 2104,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:c99|php|web)shell",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Web shell reference in query string",
+      "tags": [
+        "shell",
+        "backdoor"
+      ]
+    },
+    {
+      "id": 2105,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:root_path|outfile)\\s*=",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Server path manipulation in query string",
+      "tags": [
+        "injection",
+        "lfi"
+      ]
+    },
+    {
+      "_comment": "=== QUERY_STRING: Traversal & Protocol (2200-2299) ==="
+    },
+    {
+      "id": 2200,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:%2e%2e|%0d%0a|%0a|%0d|%00)",
+      "transformations": [],
+      "action": "block",
+      "severity": 2,
+      "message": "Encoded traversal or injection in query string",
+      "tags": [
+        "traversal",
+        "evasion"
+      ]
+    },
+    {
+      "id": 2201,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "127\\.0\\.0\\.1|localhost|loopback",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Loopback reference in query string",
+      "tags": [
+        "ssrf",
+        "probe"
+      ]
+    },
+    {
+      "id": 2203,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "etc\\/(?:hosts|motd|shadow)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "System file path in query string",
+      "tags": [
+        "lfi",
+        "traversal"
+      ]
+    },
+    {
+      "id": 2204,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:path|mod)=\\.",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Relative path injection in query parameter",
+      "tags": [
+        "lfi",
+        "traversal"
+      ]
+    },
+    {
+      "id": 2205,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:\\.\\.\\\\){2,}",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Backslash path traversal in query string",
+      "tags": [
+        "traversal",
+        "lfi",
+        "windows"
+      ]
+    },
+    {
+      "id": 2310,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$\\{jndi:",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Log4Shell JNDI injection in query string",
+      "tags": [
+        "rce",
+        "log4shell",
+        "jndi",
+        "cve-2021-44228"
+      ]
+    },
+    {
+      "id": 2311,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command chaining in query string",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 2312,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$\\{?IFS\\}?",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell IFS variable bypass in query string",
+      "tags": [
+        "rce",
+        "evasion",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 2313,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$\\([^)]+\\)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command substitution in query string",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 2314,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "['\\\"];\\s*--",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL comment termination in query string",
+      "tags": [
+        "sqli",
+        "injection",
+        "auth-bypass"
+      ]
+    },
+    {
+      "id": 2315,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "['\\\"](?:\\s+(?:AND|OR)\\s+['\\\"][^'\\\"]*['\\\"]=['\\\"]|(?:\\s+(?:AND|OR)\\s+\\d+=\\d+))",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Boolean-based blind SQL injection in query string",
+      "tags": [
+        "sqli",
+        "injection",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 2316,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "waitfor\\s+delay\\s",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "MSSQL WAITFOR DELAY in query string",
+      "tags": [
+        "sqli",
+        "dos",
+        "mssql"
+      ]
+    },
+    {
+      "id": 2317,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "information_schema\\.",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "SQL information_schema access in query string",
+      "tags": [
+        "sqli",
+        "injection",
+        "enumeration"
+      ]
+    },
+    {
+      "id": 2323,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "169\\.254\\.169\\.254",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "SSRF cloud metadata endpoint in query string",
+      "tags": [
+        "ssrf",
+        "cloud-metadata"
+      ]
+    },
+    {
+      "id": 2324,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:__proto__|constructor\\s*(?:\\.|\\]\\s*\\[)\\s*prototype)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "JavaScript prototype pollution in query string",
+      "tags": [
+        "injection",
+        "prototype-pollution"
+      ]
+    },
+    {
+      "id": 2325,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:database|db_name|schema_name)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL database name function in query string",
+      "tags": [
+        "sqli",
+        "enumeration"
+      ]
+    },
+    {
+      "id": 2326,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:\\bcase\\s+when\\b.*?\\bthen\\b|select\\b.*?\\bhaving\\s+)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL conditional injection in query string (CASE/WHEN/HAVING)",
+      "tags": [
+        "sqli",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 2318,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting)\\s*=)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "HTML event handler injection in query string",
+      "tags": [
+        "xss",
+        "injection",
+        "event-handler"
+      ]
+    },
+    {
+      "id": 2319,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\(|\\.(?:call|apply|bind)\\s*\\()",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "JavaScript dialog function in query string",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 2320,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "javascript\\s*:",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript URI scheme in query string",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 2321,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "&#(?:x[0-9a-f]+|0*\\d+);",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "HTML numeric entity in query string (evasion)",
+      "tags": [
+        "xss",
+        "evasion"
+      ]
+    },
+    {
+      "_comment": "=== QUERY_STRING: Command Injection (2300-2349) ==="
+    },
+    {
+      "id": 2300,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:cmd|command)=(?:chdir|mkdir)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "OS command in query parameter",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 2301,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:absolute_|base_?|root_?)(?:dir|path)=(?:ftp|https?)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Path override to remote URL",
+      "tags": [
+        "rfi",
+        "injection"
+      ]
+    },
+    {
+      "_comment": "=== USER_AGENT: Signatures & Automation (3100-3149) ==="
+    },
+    {
+      "id": 3101,
+      "enabled": true,
+      "target": "USER_AGENT",
+      "pattern": "(?:c99|php|web)shell",
+      "transformations": [
+        "lowercase"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Shell signature in user agent",
+      "tags": [
+        "shell",
+        "backdoor"
+      ]
+    },
+    {
+      "id": 3102,
+      "enabled": true,
+      "target": "USER_AGENT",
+      "pattern": "(?:eval\\(|base64_decode|unserialize|shellshock)",
+      "transformations": [
+        "lowercase"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Code execution signature in user agent",
+      "tags": [
+        "rce",
+        "injection"
+      ]
+    },
+    {
+      "id": 3103,
+      "enabled": true,
+      "target": "USER_AGENT",
+      "pattern": "(?:pycurl|python-requests|python-urllib|libwww-perl|go-http-client)",
+      "transformations": [
+        "lowercase"
+      ],
+      "action": "block",
+      "severity": 5,
+      "message": "Known malicious scripting client detected",
+      "tags": [
+        "bot",
+        "automation"
+      ]
+    },
+    {
+      "id": 3104,
+      "enabled": true,
+      "target": "USER_AGENT",
+      "pattern": "(?:%0a|%0d|%27|%3c|%3e|%00|0x00|\\/bin\\/bash)",
+      "transformations": [],
+      "action": "block",
+      "severity": 2,
+      "message": "Injection signature in user agent",
+      "tags": [
+        "injection",
+        "evasion"
+      ]
+    },
+    {
+      "_comment": "=== REFERER: Spam & Malicious Referrers (4000-4099) ==="
+    },
+    {
+      "id": 4000,
+      "enabled": true,
+      "target": "REFERER",
+      "pattern": "(?:viagra|cialis|levitra|phentermin|tramadol|ultram|valium|vicodin|xanax|lipitor|prozac|prosac)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Pharma spam referrer",
+      "tags": [
+        "spam",
+        "pharma"
+      ]
+    },
+    {
+      "id": 4001,
+      "enabled": true,
+      "target": "REFERER",
+      "pattern": "(?:blue\\s?pill|erectile|erections?|ejaculat|impotence|libido|hoodia)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Adult/pharma spam referrer",
+      "tags": [
+        "spam",
+        "pharma"
+      ]
+    },
+    {
+      "id": 4002,
+      "enabled": true,
+      "target": "REFERER",
+      "pattern": "(?:semalt\\.com|mopub\\.com|100dollars|best-seo|todaperfeita|unicauca|huronriver|sandyauer|ypxaieo)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 4,
+      "message": "Known spam referrer domain",
+      "tags": [
+        "spam",
+        "referrer-spam"
+      ]
+    },
+    {
+      "id": 4003,
+      "enabled": true,
+      "target": "REFERER",
+      "pattern": "(?:@unlink|assert\\(|print_r\\(|x00|xbshell|cocaine)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Malicious referrer",
+      "tags": [
+        "injection",
+        "spam"
+      ]
+    },
+    {
+      "_comment": "=== COOKIE: Injection & Tampering (6000-6099) ==="
+    },
+    {
+      "id": 6001,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:benchmark|sleep)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL timing attack in cookie",
+      "tags": [
+        "sqli",
+        "dos",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6002,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:concat|char|cast|convert)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL function injection in cookie",
+      "tags": [
+        "sqli",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6003,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:<|%3c|&lt;?|\\\\u003c|\\\\x3c)\\s*script",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "XSS script injection in cookie",
+      "tags": [
+        "xss",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6004,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:href|src)\\s*=\\s*[\"'`]?javascript:",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript URI injection in cookie",
+      "tags": [
+        "xss",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6005,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:eval|assert|preg_replace)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Code evaluation attempt in cookie",
+      "tags": [
+        "rce",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6006,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:shell_exec|passthru|system|exec|popen)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "OS command execution in cookie",
+      "tags": [
+        "rce",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6007,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:c99|r57|b374k|wso|php|web)shell",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Web shell signature in cookie",
+      "tags": [
+        "shell",
+        "backdoor",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6008,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:\\.\\.\\/){2,}",
+      "transformations": [
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Path traversal in cookie",
+      "tags": [
+        "traversal",
+        "lfi",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6009,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:%00|0x00|\\\\x00)",
+      "transformations": [],
+      "action": "block",
+      "severity": 2,
+      "message": "Null byte injection in cookie",
+      "tags": [
+        "injection",
+        "evasion",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6010,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "\\$_(?:env|files|get|post|request|server|session)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP superglobal in cookie",
+      "tags": [
+        "rce",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6011,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "base64_(?:encode|decode)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Base64 function in cookie",
+      "tags": [
+        "evasion",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6012,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:%0d%0a|%0d|%0a)(?:set-cookie|location):",
+      "transformations": [
+        "lowercase"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "HTTP header injection via cookie",
+      "tags": [
+        "injection",
+        "header-injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6020,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "\\$\\{jndi:",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Log4Shell JNDI injection in cookie",
+      "tags": [
+        "rce",
+        "log4shell",
+        "jndi",
+        "cookie",
+        "cve-2021-44228"
+      ]
+    },
+    {
+      "_comment": "=== COOKIE: Character & Pattern Anomalies (6100-6199) ==="
+    },
+    {
+      "id": 6101,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:\\}\\}\\}|\\}\\}|\\{\\}\\})",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Template/SSTI injection pattern in cookie",
+      "tags": [
+        "ssti",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6102,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:\\)\\/{2}|\\(\\(\\)|\\)>>)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Control sequence injection in cookie",
+      "tags": [
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6103,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:\\('\\\\|\\]\\()",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Escape or markdown injection in cookie",
+      "tags": [
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6104,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "(?:\\\\\\.\\.\\\\|\\.\\.\\/\\.\\.)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Windows or chained path traversal in cookie",
+      "tags": [
+        "traversal",
+        "lfi",
+        "cookie"
+      ]
+    },
+    {
+      "id": 6105,
+      "enabled": true,
+      "target": "COOKIE",
+      "pattern": "'",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "Unescaped single quote in cookie",
+      "tags": [
+        "sqli",
+        "injection",
+        "cookie"
+      ]
+    },
+    {
+      "_comment": "=== POST: XSS & Injection (5000-5099) ==="
+    },
+    {
+      "id": 5000,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:<|%3c|&lt;?|\\\\u003c|\\\\x3c)\\s*script",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "XSS script injection in POST data",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 5001,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:href|src)\\s*=\\s*[\"'`]?javascript:",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript URI injection in POST data",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 5002,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "<%=",
+      "transformations": [
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Server-side template injection in POST data",
+      "tags": [
+        "injection",
+        "ssti"
+      ]
+    },
+    {
+      "id": 5003,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\+\\/\"\\+\\/\\+",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Obfuscated injection in POST data",
+      "tags": [
+        "injection",
+        "evasion"
+      ]
+    }
+  ]
+}
