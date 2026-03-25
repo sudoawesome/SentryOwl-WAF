@@ -1,48 +1,82 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
+# Linux / KDE / shell-script repos
+*~*
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+nohup.out
 
-# Core
-#
-# Note: if you want to stage/commit WP core files
-# you can delete this whole section/until Configuration.
+# Editor swap / backup junk
+*.swp
+*.swo
+*.kate-swp
+.swp.*
+*.bak
+*.tmp
+*.orig
+*.rej
+
+# Local shell / REPL / history junk
+.history
+.bash_history
+.sh_history
+.zsh_history
+.zhistory
+.python_history
+.node_repl_history
+.mysql_history
+.psql_history
+.sqlite_history
+.lesshst
+.selected_editor
+.wget-hsts
+.viminfo
+
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+.ipynb_checkpoints/
+.env
+.envrc
+
+# WordPress
+wp-config.php
+/.htaccess
 /wp-admin/
+/wp-includes/
 /wp-content/index.php
-/wp-content/languages
+/wp-content/languages/
 /wp-content/plugins/index.php
 /wp-content/themes/index.php
-/wp-includes/
+/wp-content/uploads/
+/wp-content/cache/
+/wp-content/upgrade/
+/wp-content/backup-db/
+/wp-content/advanced-cache.php
+/wp-content/wp-cache-config.php
+/wp-content/themes/twenty*/
+/wp-content/plugins/hello.php
 /index.php
 /license.txt
 /readme.html
 /wp-*.php
 /xmlrpc.php
 
-# Configuration
-wp-config.php
-
-# Example themes
-/wp-content/themes/twenty*/
-
-# Example plugin
-/wp-content/plugins/hello.php
-
-# Uploads
-/wp-content/uploads/
-
-# Log files
+# Logs
 *.log
-
-# htaccess
-/.htaccess
-
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
-
-# All themes
-#
-# Note: If you wish to whitelist themes,
-# uncomment the next line
-#/wp-content/themes
