@@ -78,5 +78,114 @@ wp-config.php
 /wp-*.php
 /xmlrpc.php
 
+# Laravel
+/bootstrap/cache/
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/public/hot
+/public/storage
+/public/build/
+/public/mix-manifest.json
+Homestead.json
+Homestead.yaml
+auth.json
+.phpunit.result.cache
+.phpunit.cache/
+
+# Nette
+/temp/
+/log/
+/www/webtemp/
+/app/config/local.*
+/app/config/config.local.neon
+
+# PHP / Composer
+/vendor/
+composer.lock
+*.phar
+
+# Node.js / Frontend build tooling
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.npm/
+.yarn/
+.pnp.*
+.cache/
+.parcel-cache/
+
+# Nginx
+nginx.conf
+sites-available/
+sites-enabled/
+fastcgi_params
+
+# Apache
+.htpasswd
+apache2.conf
+httpd.conf
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Databases / dumps
+*.sql
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets / credentials / certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+.env.*
+!.env.example
+id_rsa*
+known_hosts
+
+# SSH
+.ssh/
+
+# IDE / Editor config
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+*.code-workspace
+.editorconfig
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# Archives / packages
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
 # Logs
 *.log
+error_log
+access_log
+debug.log
+
+# Custom
+config.json
