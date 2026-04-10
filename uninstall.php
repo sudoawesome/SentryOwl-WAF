@@ -1,6 +1,6 @@
 <?php
 /*
-	SentryOwl Firewall - Uninstall
+	Secure Owl Firewall - Uninstall
 	Removes all plugin data when the plugin is deleted.
 */
 
@@ -25,8 +25,9 @@ if (file_exists($sswaf_mu_file)) {
 	wp_delete_file($sswaf_mu_file);
 }
 
-// Remove log directory (inside plugin dir — may already be gone)
-$sswaf_log_dir = plugin_dir_path(__FILE__) . 'logs/';
+// Remove log directory (in uploads folder)
+$sswaf_upload = wp_upload_dir();
+$sswaf_log_dir = $sswaf_upload['basedir'] . '/secure-owl-firewall/';
 if (is_dir($sswaf_log_dir)) {
 	$sswaf_files = glob($sswaf_log_dir . '*');
 	if ($sswaf_files) {

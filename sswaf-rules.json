@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "name": "SentryOwl Default Ruleset",
+    "name": "Secure Owl Default Ruleset",
     "version": "1.0.0",
     "updated": "2026-03-23",
-    "description": "Default firewall rules for SentryOwl Firewall plugin"
+    "description": "Default firewall rules for Secure Owl Firewall plugin"
   },
   "settings": {
     "max_request_length": 1000,

@@ -1,6 +1,6 @@
 <?php
 /*
-	SentryOwl Firewall - Admin Settings
+	Secure Owl Firewall - Admin Settings
 	Handles the settings page, logging toggle, and log viewer.
 */
 
@@ -11,8 +11,8 @@ if (!defined('ABSPATH')) die();
 add_action('admin_menu', 'sswaf_admin_menu');
 function sswaf_admin_menu() {
 	add_options_page(
-		'SentryOwl Firewall',
-		'SentryOwl Firewall',
+		'Secure Owl Firewall',
+		'Secure Owl Firewall',
 		'manage_options',
 		'sswaf-settings',
 		'sswaf_settings_page'
@@ -21,9 +21,25 @@ function sswaf_admin_menu() {
 
 add_filter('plugin_action_links_' . SSWAF_BASE_FILE, 'sswaf_action_links');
 function sswaf_action_links($links) {
-	$settings_link = '<a href="' . admin_url('options-general.php?page=sswaf-settings') . '">' . __('Settings', 'sswaf') . '</a>';
+	$settings_link = '<a href="' . admin_url('options-general.php?page=sswaf-settings') . '">' . __('Settings', 'secure-owl-firewall') . '</a>';
 	array_unshift($links, $settings_link);
 	return $links;
+}
+
+add_action('admin_enqueue_scripts', 'sswaf_admin_enqueue');
+function sswaf_admin_enqueue($hook) {
+	if ('settings_page_sswaf-settings' !== $hook) return;
+	wp_enqueue_script(
+		'sswaf-admin-js',
+		plugins_url('sswaf-admin.js', __FILE__),
+		array(),
+		SSWAF_VERSION,
+		true
+	);
+	wp_localize_script('sswaf-admin-js', 'sswaf_admin', array(
+		'nonce'    => wp_create_nonce('sswaf_toggle_rule_nonce'),
+		'ajax_url' => admin_url('admin-ajax.php'),
+	));
 }
 
 // ── Settings Registration ────────────────────────────────────────────────────
@@ -272,7 +288,7 @@ function sswaf_settings_page() {
 	
 	?>
 	<div class="wrap">
-		<h1>SentryOwl Firewall</h1>
+		<h1>Secure Owl Firewall</h1>
 		<p>Smart rule-based protection that blocks threats and secures your site from attacks.</p>
 		
 		<?php if ($cleared) : ?>
@@ -408,12 +424,6 @@ function sswaf_settings_page() {
 					</table>
 				</div>
 				
-				<script>
-				document.getElementById('sswaf-rate-toggle').addEventListener('change', function() {
-					document.getElementById('sswaf-rate-settings').style.display = this.checked ? '' : 'none';
-				});
-				</script>
-				
 				<?php submit_button('Save Settings'); ?>
 			</form>
 		</div>
@@ -522,85 +532,6 @@ function sswaf_settings_page() {
 				</p>
 			<?php endif; ?>
 		</div>
-		
-		<script>
-		(function() {
-			var nonce = '<?php echo esc_attr(wp_create_nonce('sswaf_toggle_rule_nonce')); ?>';
-			var ajaxUrl = '<?php echo esc_url(admin_url('admin-ajax.php')); ?>';
-			
-			// Toggle handler
-			document.querySelectorAll('.sswaf-toggle').forEach(function(btn) {
-				btn.addEventListener('click', function() {
-					var button = this;
-					var ruleId = button.getAttribute('data-rule-id');
-					var action = button.getAttribute('data-action');
-					var row = button.closest('tr');
-					
-					button.disabled = true;
-					button.textContent = '...';
-					
-					var formData = new FormData();
-					formData.append('action', 'sswaf_toggle_rule');
-					formData.append('nonce', nonce);
-					formData.append('rule_id', ruleId);
-					formData.append('toggle_action', action);
-					
-					fetch(ajaxUrl, { method: 'POST', body: formData })
-						.then(function(r) { return r.json(); })
-						.then(function(resp) {
-							if (resp.success) {
-								var isOn = (action === 'enable');
-								button.innerHTML = isOn ? '&#10003; On' : '&#10007; Off';
-								button.style.color = isOn ? '#00a32a' : '#dc3232';
-								button.setAttribute('data-action', isOn ? 'disable' : 'enable');
-								row.style.opacity = isOn ? '1' : '0.6';
-								row.setAttribute('data-status', isOn ? 'enabled' : 'disabled');
-								updateCount();
-							} else {
-								button.textContent = 'Error';
-							}
-							button.disabled = false;
-						})
-						.catch(function() {
-							button.textContent = 'Error';
-							button.disabled = false;
-						});
-				});
-			});
-			
-			// Filtering
-			var searchInput = document.getElementById('sswaf-rule-search');
-			var filterTarget = document.getElementById('sswaf-rule-filter-target');
-			var filterStatus = document.getElementById('sswaf-rule-filter-status');
-			
-			function filterRules() {
-				var search = searchInput.value.toLowerCase();
-				var target = filterTarget.value;
-				var status = filterStatus.value;
-				var rows = document.querySelectorAll('.sswaf-rule-row');
-				
-				rows.forEach(function(row) {
-					var matchSearch = !search || row.getAttribute('data-search').indexOf(search) !== -1;
-					var matchTarget = !target || row.getAttribute('data-target') === target;
-					var matchStatus = !status || row.getAttribute('data-status') === status;
-					row.style.display = (matchSearch && matchTarget && matchStatus) ? '' : 'none';
-				});
-				updateCount();
-			}
-			
-			function updateCount() {
-				var total = document.querySelectorAll('.sswaf-rule-row').length;
-				var visible = document.querySelectorAll('.sswaf-rule-row:not([style*="display: none"])').length;
-				var el = document.getElementById('sswaf-rule-count');
-				el.textContent = visible < total ? visible + ' of ' + total + ' rules' : total + ' rules';
-			}
-			
-			searchInput.addEventListener('input', filterRules);
-			filterTarget.addEventListener('change', filterRules);
-			filterStatus.addEventListener('change', filterRules);
-			updateCount();
-		})();
-		</script>
 		
 		<br>
 		

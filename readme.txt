@@ -1,4 +1,4 @@
-=== SentryOwl Firewall ===
+=== Secure Owl Firewall ===
 Contributors: sajbersove
 Tags: firewall, security, waf, protection
 Requires at least: 5.0
@@ -7,11 +7,11 @@ Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
 
-Sentry Owl Firewall is a smart rule-based protection that blocks threats and secures your site from attacks.
+Secure Owl Firewall is a smart rule-based protection that blocks threats and secures your site from attacks.
 
 == Description ==
 
-SentryOwl Firewall is a fast, lightweight firewall plugin with an advanced rule engine featuring PCRE pattern matching, a transformation pipeline, and JSON-based rule configuration.
+Secure Owl Firewall is a fast, lightweight firewall plugin with an advanced rule engine featuring PCRE pattern matching, a transformation pipeline, and JSON-based rule configuration.
 
 Key features:
 
@@ -29,7 +29,7 @@ Key features:
 1. Upload the `sswaf` folder to `/wp-content/plugins/`
 2. Activate through the Plugins menu
 3. The MU-Plugin loader is installed automatically for early execution
-4. Configure settings under Settings > SentryOwl Firewall
+4. Configure settings under Settings > Secure Owl Firewall
 
 == Filter Hooks ==
 
