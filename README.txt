@@ -21,7 +21,7 @@ Key features:
 * MU-Plugin loader — runs before any regular plugin for earliest protection
 * Rate limiting — optional transient-based IP and subnet banning
 * Per-rule toggle — disable individual rules from the admin panel without editing files
-* File-based logging — 2MB cap with auto-rotation, protected log storage
+* File-based logging — 64MB cap with auto-rotation, protected log storage
 * Filterable — extensive filter hooks for customization
 
 == Installation ==
@@ -49,3 +49,7 @@ Key features:
 
 = 1.0.0 =
 * Initial release
+
+= 1.0.1 =
+* Updated security rules.
+* Updated log file cap to 24MB.

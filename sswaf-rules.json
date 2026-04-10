@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "name": "Secure Owl Default Ruleset",
-    "version": "1.0.0",
-    "updated": "2026-03-23",
-    "description": "Default firewall rules for Secure Owl Firewall plugin"
+    "name": "SentryOwl Default Ruleset",
+    "version": "1.0.1",
+    "updated": "2026-04-10",
+    "description": "Default firewall rules for SentryOwl Firewall plugin"
   },
   "settings": {
     "max_request_length": 1000,
@@ -54,7 +54,7 @@
       "id": 1002,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "(?:usr\\/bin\\/(?:perl|python|cc|id|kill))",
+      "pattern": "(?:(?:usr\\/)?bin\\/(?:perl|python|cc|id|kill|sh|bash|dash|zsh|csh))",
       "transformations": [
         "lowercase",
         "urlDecode",
@@ -62,7 +62,7 @@
       ],
       "action": "block",
       "severity": 2,
-      "message": "System binary access attempt",
+      "message": "System binary or shell access attempt",
       "tags": [
         "rce",
         "system"
@@ -101,6 +101,25 @@
       "tags": [
         "disclosure",
         "sensitive-file"
+      ]
+    },
+    {
+      "id": 1010,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\/\\.aws(?:\\/|$)",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "normalizePath"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "AWS credentials directory access attempt",
+      "tags": [
+        "disclosure",
+        "sensitive-file",
+        "cloud"
       ]
     },
     {
@@ -182,7 +201,7 @@
       "id": 1100,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "\\.(?:bak|bash|bat|cfg|cmd|conf|db|dll|ds_store|exe|hta|htp|ini|jsp|msi|mysql|pass|pwd|sql)(?:\\?|$)",
+      "pattern": "\\.(?:bak|bash|bat|cfg|cmd|conf|db|dll|ds_store|exe|hta|htp|ini|jsp|msi|mysql|pass|pwd|sql|ya?ml)(?:\\?|$)",
       "transformations": [
         "lowercase",
         "urlDecode",
@@ -218,7 +237,7 @@
       "id": 1102,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "\\/\\.(?:git|svn)(?:\\/|$)",
+      "pattern": "\\/\\.(?:git|svn|hg|bzr)(?:\\/|$)",
       "transformations": [
         "lowercase",
         "urlDecode",
@@ -344,6 +363,61 @@
       ]
     },
     {
+      "id": 1235,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "gzinflate\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "PHP gzinflate function in URI (obfuscated payload)",
+      "tags": [
+        "rce",
+        "injection",
+        "php"
+      ]
+    },
+    {
+      "id": 1236,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "xdebug_session",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "PHP Xdebug session probe",
+      "tags": [
+        "probe",
+        "debug",
+        "php"
+      ]
+    },
+    {
+      "id": 1237,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "eval-stdin\\.php",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHPUnit RCE attempt (CVE-2017-9841)",
+      "tags": [
+        "rce",
+        "exploit",
+        "cve-2017-9841"
+      ]
+    },
+    {
       "id": 1204,
       "enabled": true,
       "target": "REQUEST_URI",
@@ -416,7 +490,7 @@
       "id": 1211,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php)\\b",
+      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php|getent)\\b",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -602,6 +676,24 @@
       ]
     },
     {
+      "id": 1238,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:burpcollaborator\\.net|interact\\.sh|oast\\.me|oast\\.fun|oast\\.live|canarytokens\\.com)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Out-of-band testing domain detected",
+      "tags": [
+        "scanner",
+        "recon",
+        "oob"
+      ]
+    },
+    {
       "id": 1226,
       "enabled": true,
       "target": "REQUEST_URI",
@@ -619,10 +711,151 @@
       ]
     },
     {
+      "id": 1229,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\$\\{@",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP variable function execution attempt",
+      "tags": [
+        "rce",
+        "injection",
+        "php"
+      ]
+    },
+    {
+      "id": 1230,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\([\\s]*[&|!][\\s]*\\(|objectclass\\s*[=*]",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "LDAP injection attempt",
+      "tags": [
+        "ldap",
+        "injection"
+      ]
+    },
+    {
+      "id": 1231,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\$(?:where|or|and|not|nor|gt|gte|lt|lte|ne|eq|regex|exists|in|nin)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "NoSQL injection operator in URI",
+      "tags": [
+        "nosql",
+        "injection"
+      ]
+    },
+    {
+      "id": 1232,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "\\{\\{[^}]*\\}\\}|#\\{[^}]+\\}",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Template expression injection in URI (SSTI)",
+      "tags": [
+        "ssti",
+        "injection"
+      ]
+    },
+    {
+      "id": 1233,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "declare\\s*@|xp_(?:cmdshell|enumgroups|loginconfig|logininfo|msver|sprintf|sscanf|reg(?:read|write|delete))",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "MSSQL DECLARE or extended stored procedure attempt",
+      "tags": [
+        "sqli",
+        "mssql",
+        "rce"
+      ]
+    },
+    {
+      "id": 1234,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "json_(?:extract|depth|type|length|keys|value|set|insert|replace|remove)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL JSON function injection attempt",
+      "tags": [
+        "sqli",
+        "injection"
+      ]
+    },
+    {
+      "id": 1239,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:md5|sha[12]?|sha(?:256|384|512))\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "SQL hash function in URI (blind SQLi probe)",
+      "tags": [
+        "sqli",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 1240,
+      "enabled": true,
+      "target": "REQUEST_URI",
+      "pattern": "(?:dbms_pipe|receive_message)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Oracle SQL timing function in URI",
+      "tags": [
+        "sqli",
+        "dos",
+        "oracle"
+      ]
+    },
+    {
       "id": 1219,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting)\\s*=)",
+      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print|toggle)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting|pageshow|pointerenter|pointermove|pointerrawupdate|auxclick|afterscriptexecute|loadstart|start)\\s*=)",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -640,7 +873,7 @@
       "id": 1220,
       "enabled": true,
       "target": "REQUEST_URI",
-      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\(|\\.(?:call|apply|bind)\\s*\\()",
+      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\?\\.\\(|\\(|\\.(?:call|apply|bind)\\s*\\()",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -900,22 +1133,6 @@
       "tags": [
         "evasion",
         "injection"
-      ]
-    },
-    {
-      "id": 1501,
-      "enabled": true,
-      "target": "REQUEST_URI",
-      "pattern": "(?:<|>|\\^|`)",
-      "transformations": [
-        "urlDecode"
-      ],
-      "action": "block",
-      "severity": 4,
-      "message": "Suspicious character in URI",
-      "tags": [
-        "injection",
-        "xss"
       ]
     },
     {
@@ -1400,7 +1617,7 @@
       "id": 2311,
       "enabled": true,
       "target": "QUERY_STRING",
-      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php)\\b",
+      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php|getent)\\b",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -1552,6 +1769,202 @@
       ]
     },
     {
+      "id": 2327,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$\\{@",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP variable function execution in query string",
+      "tags": [
+        "rce",
+        "injection",
+        "php"
+      ]
+    },
+    {
+      "id": 2328,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\([\\s]*[&|!][\\s]*\\(|objectclass\\s*[=*]",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "LDAP injection in query string",
+      "tags": [
+        "ldap",
+        "injection"
+      ]
+    },
+    {
+      "id": 2329,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\$(?:where|or|and|not|nor|gt|gte|lt|lte|ne|eq|regex|exists|in|nin)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "NoSQL injection operator in query string",
+      "tags": [
+        "nosql",
+        "injection"
+      ]
+    },
+    {
+      "id": 2330,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "\\{\\{[^}]*\\}\\}|#\\{[^}]+\\}",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Template expression injection in query string (SSTI)",
+      "tags": [
+        "ssti",
+        "injection"
+      ]
+    },
+    {
+      "id": 2331,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "declare\\s*@|xp_(?:cmdshell|enumgroups|loginconfig|logininfo|msver|sprintf|sscanf|reg(?:read|write|delete))",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "MSSQL DECLARE or extended stored procedure attempt",
+      "tags": [
+        "sqli",
+        "mssql",
+        "rce"
+      ]
+    },
+    {
+      "id": 2332,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "json_(?:extract|depth|type|length|keys|value|set|insert|replace|remove)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "SQL JSON function injection in query string",
+      "tags": [
+        "sqli",
+        "injection"
+      ]
+    },
+    {
+      "id": 2333,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "gzinflate\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "PHP gzinflate function in query string",
+      "tags": [
+        "rce",
+        "injection",
+        "php"
+      ]
+    },
+    {
+      "id": 2334,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "xdebug_session",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "PHP Xdebug session in query string",
+      "tags": [
+        "probe",
+        "debug",
+        "php"
+      ]
+    },
+    {
+      "id": 2335,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:burpcollaborator\\.net|interact\\.sh|oast\\.me|oast\\.fun|oast\\.live|canarytokens\\.com)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Out-of-band testing domain in query string",
+      "tags": [
+        "scanner",
+        "recon",
+        "oob"
+      ]
+    },
+    {
+      "id": 2336,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:md5|sha[12]?|sha(?:256|384|512))\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 3,
+      "message": "SQL hash function in query string",
+      "tags": [
+        "sqli",
+        "blind-sqli"
+      ]
+    },
+    {
+      "id": 2337,
+      "enabled": true,
+      "target": "QUERY_STRING",
+      "pattern": "(?:dbms_pipe|receive_message)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Oracle SQL timing function in query string",
+      "tags": [
+        "sqli",
+        "dos",
+        "oracle"
+      ]
+    },
+    {
       "id": 2325,
       "enabled": true,
       "target": "QUERY_STRING",
@@ -1590,7 +2003,7 @@
       "id": 2318,
       "enabled": true,
       "target": "QUERY_STRING",
-      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting)\\s*=)",
+      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print|toggle)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting|pageshow|pointerenter|pointermove|pointerrawupdate|auxclick|afterscriptexecute|loadstart|start)\\s*=)",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -1608,7 +2021,7 @@
       "id": 2319,
       "enabled": true,
       "target": "QUERY_STRING",
-      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\(|\\.(?:call|apply|bind)\\s*\\()",
+      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\?\\.\\(|\\(|\\.(?:call|apply|bind)\\s*\\()",
       "transformations": [
         "lowercase",
         "urlDecode"
@@ -1756,6 +2169,24 @@
       "tags": [
         "injection",
         "evasion"
+      ]
+    },
+    {
+      "id": 3105,
+      "enabled": true,
+      "target": "USER_AGENT",
+      "pattern": "\\$\\{jndi:",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Log4Shell JNDI injection in user agent",
+      "tags": [
+        "rce",
+        "log4shell",
+        "jndi",
+        "cve-2021-44228"
       ]
     },
     {
@@ -2226,6 +2657,284 @@
       "tags": [
         "injection",
         "evasion"
+      ]
+    },
+    {
+      "id": 5010,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:\\\"|')?\\s*(?:on(?:mouse(?:over|out|down|up|move|enter|leave)|click|dblclick|focus|blur|load|error|submit|reset|change|select|key(?:down|up|press)|touch(?:start|end|move)|animation(?:start|end|iteration)|transition(?:end|run|start)|wheel|scroll|resize|abort|unload|before(?:unload|print|toggle)|after(?:print)|drag(?:start|end|over|enter|leave|drop)?|input|invalid|play|pause|progress|search|toggle|waiting|pageshow|pointerenter|pointermove|pointerrawupdate|auxclick|afterscriptexecute|loadstart|start)\\s*=)",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "HTML event handler injection in POST data",
+      "tags": [
+        "xss",
+        "injection",
+        "event-handler"
+      ]
+    },
+    {
+      "id": 5011,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:alert|prompt|confirm)\\s*(?:\\?\\.\\(|\\(|\\.(?:call|apply|bind)\\s*\\()",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript dialog function in POST data",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 5012,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "javascript\\s*:",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "JavaScript URI scheme in POST data",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 5013,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "&#(?:x[0-9a-f]+|0*\\d+);",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "HTML numeric entity in POST data (evasion)",
+      "tags": [
+        "xss",
+        "evasion"
+      ]
+    },
+    {
+      "id": 5014,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "<\\s*(?:svg|img|iframe|object|embed|body|video|audio|details|input|textarea|button|form|link|meta|base|marquee|math|style)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "htmlEntityDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Dangerous HTML tag in POST data",
+      "tags": [
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "id": 5015,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "autofocus\\s*=",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "HTML autofocus attribute in POST data",
+      "tags": [
+        "xss",
+        "injection",
+        "event-handler"
+      ]
+    },
+    {
+      "id": 5016,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\$\\{jndi:",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "Log4Shell JNDI injection in POST data",
+      "tags": [
+        "rce",
+        "log4shell",
+        "jndi",
+        "cve-2021-44228"
+      ]
+    },
+    {
+      "id": 5017,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:;|\\|)\\s*(?:cat|ls|id|whoami|echo|bash|sh|awk|sed|wget|curl|ping|nc|ncat|python|perl|ruby|php|getent)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command chaining in POST data",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 5018,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\$\\{?IFS\\}?",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell IFS variable bypass in POST data",
+      "tags": [
+        "rce",
+        "evasion",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 5019,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\$\\([^)]+\\)",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Shell command substitution in POST data",
+      "tags": [
+        "rce",
+        "command-injection"
+      ]
+    },
+    {
+      "id": 5020,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\$\\{@",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "PHP variable function execution in POST data",
+      "tags": [
+        "rce",
+        "injection",
+        "php"
+      ]
+    },
+    {
+      "id": 5021,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\([\\s]*[&|!][\\s]*\\(|objectclass\\s*[=*]",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "LDAP injection in POST data",
+      "tags": [
+        "ldap",
+        "injection"
+      ]
+    },
+    {
+      "id": 5022,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\$(?:where|or|and|not|nor|gt|gte|lt|lte|ne|eq|regex|exists|in|nin)\\b",
+      "transformations": [
+        "lowercase",
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "NoSQL injection operator in POST data",
+      "tags": [
+        "nosql",
+        "injection"
+      ]
+    },
+    {
+      "id": 5023,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "\\{\\{[^}]*\\}\\}|#\\{[^}]+\\}",
+      "transformations": [
+        "urlDecode"
+      ],
+      "action": "block",
+      "severity": 2,
+      "message": "Template expression injection in POST data (SSTI)",
+      "tags": [
+        "ssti",
+        "injection"
+      ]
+    },
+    {
+      "id": 5024,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "declare\\s*@|xp_(?:cmdshell|enumgroups|loginconfig|logininfo|msver|sprintf|sscanf|reg(?:read|write|delete))",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "MSSQL DECLARE or stored procedure in POST data",
+      "tags": [
+        "sqli",
+        "mssql",
+        "rce"
+      ]
+    },
+    {
+      "id": 5025,
+      "enabled": true,
+      "target": "POST",
+      "pattern": "(?:benchmark|sleep)\\s*\\(",
+      "transformations": [
+        "lowercase",
+        "urlDecode",
+        "removeWhitespace"
+      ],
+      "action": "block",
+      "severity": 1,
+      "message": "SQL timing attack in POST data",
+      "tags": [
+        "sqli",
+        "dos"
       ]
     }
   ]

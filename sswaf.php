@@ -5,10 +5,11 @@
 	Description: Secure Owl Firewall is a smart rule-based protection that blocks threats and secures your site from attacks.
 	Tags: firewall, security, waf, protection
 	Author: Sajber Sove
+	Author URI: https://sajbersove.rs
 	Requires at least: 5.0
 	Tested up to: 6.9
-	Stable tag: 1.0.0
-	Version:    1.0.0
+	Stable tag: 1.0.1
+	Version:    1.0.1
 	Requires PHP: 7.4
 	Text Domain: secure-owl-firewall
 	License: GPLv2 or later
@@ -24,7 +25,7 @@ if (!defined('SSWAF_BASE_FILE')) define('SSWAF_BASE_FILE', plugin_basename(__FIL
 if (!defined('SSWAF_DIR'))       define('SSWAF_DIR', plugin_dir_path(__FILE__));
 if (!defined('SSWAF_URL'))       define('SSWAF_URL', plugins_url('/', __FILE__));
 if (!defined('SSWAF_RULES'))     define('SSWAF_RULES', SSWAF_DIR . 'sswaf-rules.json');
-if (!defined('SSWAF_LOG_MAX'))   define('SSWAF_LOG_MAX', 2 * 1024 * 1024); // 2 MB
+if (!defined('SSWAF_LOG_MAX'))   define('SSWAF_LOG_MAX', 24 * 1024 * 1024); // 24 MB
 if (!defined('SSWAF_MU_FILE'))   define('SSWAF_MU_FILE', WPMU_PLUGIN_DIR . '/sswaf-loader.php');
 
 // ── Transformation Functions ─────────────────────────────────────────────────
