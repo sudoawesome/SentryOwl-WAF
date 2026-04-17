@@ -8,8 +8,8 @@
 	Author URI: https://sajbersove.rs
 	Requires at least: 5.0
 	Tested up to: 6.9
-	Stable tag: 1.0.4
-	Version:    1.0.4
+	Stable tag: 1.0.5
+	Version:    1.0.5
 	Requires PHP: 7.4
 	Text Domain: secure-owl-firewall
 	License: GPLv2 or later
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 if ( ! defined( 'SSWAF_VERSION' ) ) {
-	define( 'SSWAF_VERSION', '1.0.4' );
+	define( 'SSWAF_VERSION', '1.0.5' );
 }
 
 if ( ! defined( 'SSWAF_FILE' ) ) {
@@ -45,10 +45,9 @@ if ( ! defined( 'SSWAF_RULES' ) ) {
 }
 
 if ( ! defined( 'SSWAF_LOG_MAX' ) ) {
-	define( 'SSWAF_LOG_MAX', 24 * 1024 * 1024 );
+	define( 'SSWAF_LOG_MAX', 64 * 1024 * 1024 );
 }
 
-// 24 MB
 if ( ! defined( 'SSWAF_MU_FILE' ) ) {
 	define( 'SSWAF_MU_FILE', WPMU_PLUGIN_DIR . '/sswaf-loader.php' );
 }
@@ -523,9 +522,11 @@ function sswaf_log( $rule, $match, $target, $remote_addr ) {
 	$message = isset( $rule['message'] ) ? $rule['message'] : 'Unknown';
 	$severity = isset( $rule['severity'] ) ? $rule['severity'] : 0;
 	$match_str = is_array( $match ) && isset( $match[0] ) ? $match[0] : (string) $match;
-	$uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '-';
 
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- logging raw URI for forensics
+	// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- logging raw URI for forensics
+	$uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '-';
+	// phpcs:enable WordPress.Security.ValidatedSanitizedInput
+
 	// Sanitize for log injection
 	$match_str = str_replace( array(
 		"\r",

@@ -3,7 +3,7 @@ Contributors: sajbersove
 Tags: firewall, security, waf, protection
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 Requires PHP: 7.4
 License: GPLv2 or later
 
@@ -71,3 +71,7 @@ Key features:
 * Added option to anonymize user IP addresses, enhancing privacy and GDPR compliance.
 * Rework plugin update mechanism.
 * Improved coding standards to align better with WordPress guidelines.
+
+= 1.0.5 =
+* Updated log file cap to 64MB.
+* Fixed a small bug in admin panel log viewer.

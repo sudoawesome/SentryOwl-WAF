@@ -323,7 +323,6 @@ function sswaf_get_rule_stats() {
 function sswaf_get_recent_log_entries( $count = 50 ) {
 
 	$log_file = apply_filters( 'sswaf_log_file', sswaf_get_log_path() );
-	$guard = trim( sswaf_get_log_guard() );
 
 	if ( ! file_exists( $log_file ) || filesize( $log_file ) === 0 ) {
 		return array();
@@ -347,8 +346,8 @@ function sswaf_get_recent_log_entries( $count = 50 ) {
 	$lines = explode( "\n", trim( $content ) );
 
 	// Filter out die guard and empty lines
-	$lines = array_filter( $lines, function ( $line ) use ( $guard ) {
-		return '' !== $line && $line !== $guard;
+	$lines = array_filter( $lines, function ( $line ) {
+		return '' !== $line && strpos( $line, '<?php if ( ! defined( \'ABSPATH\' ) ) exit;' ) !== 0;
 	} );
 
 	$lines = array_slice( $lines, -$count );
