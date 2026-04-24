@@ -2187,23 +2187,6 @@
       "_comment": "=== REFERER: Spam & Malicious Referrers (4000-4099) ==="
     },
     {
-      "id": 4000,
-      "enabled": true,
-      "target": "REFERER",
-      "pattern": "(?:viagra|cialis|levitra|phentermin|tramadol|ultram|valium|vicodin|xanax|lipitor|prozac|prosac)",
-      "transformations": [
-        "lowercase",
-        "urlDecode"
-      ],
-      "action": "block",
-      "severity": 4,
-      "message": "Pharma spam referrer",
-      "tags": [
-        "spam",
-        "pharma"
-      ]
-    },
-    {
       "id": 4001,
       "enabled": true,
       "target": "REFERER",
@@ -2498,23 +2481,6 @@
       "_comment": "=== COOKIE: Character & Pattern Anomalies (6100-6199) ==="
     },
     {
-      "id": 6101,
-      "enabled": true,
-      "target": "COOKIE",
-      "pattern": "(?:\\}\\}\\}|\\}\\}|\\{\\}\\})",
-      "transformations": [
-        "urlDecode"
-      ],
-      "action": "block",
-      "severity": 2,
-      "message": "Template/SSTI injection pattern in cookie",
-      "tags": [
-        "ssti",
-        "injection",
-        "cookie"
-      ]
-    },
-    {
       "id": 6102,
       "enabled": true,
       "target": "COOKIE",
@@ -2582,24 +2548,6 @@
     },
     {
       "_comment": "=== POST: XSS & Injection (5000-5099) ==="
-    },
-    {
-      "id": 5000,
-      "enabled": true,
-      "target": "POST",
-      "pattern": "(?:<|%3c|&lt;?|\\\\u003c|\\\\x3c)\\s*script",
-      "transformations": [
-        "lowercase",
-        "urlDecode",
-        "htmlEntityDecode"
-      ],
-      "action": "block",
-      "severity": 1,
-      "message": "XSS script injection in POST data",
-      "tags": [
-        "xss",
-        "injection"
-      ]
     },
     {
       "id": 5001,
@@ -2701,41 +2649,6 @@
       "action": "block",
       "severity": 1,
       "message": "JavaScript URI scheme in POST data",
-      "tags": [
-        "xss",
-        "injection"
-      ]
-    },
-    {
-      "id": 5013,
-      "enabled": true,
-      "target": "POST",
-      "pattern": "&#(?:x[0-9a-f]+|0*\\d+);",
-      "transformations": [
-        "lowercase",
-        "urlDecode"
-      ],
-      "action": "block",
-      "severity": 2,
-      "message": "HTML numeric entity in POST data (evasion)",
-      "tags": [
-        "xss",
-        "evasion"
-      ]
-    },
-    {
-      "id": 5014,
-      "enabled": true,
-      "target": "POST",
-      "pattern": "<\\s*(?:svg|img|iframe|object|embed|body|video|audio|details|input|textarea|button|form|link|meta|base|marquee|math|style)\\b",
-      "transformations": [
-        "lowercase",
-        "urlDecode",
-        "htmlEntityDecode"
-      ],
-      "action": "block",
-      "severity": 1,
-      "message": "Dangerous HTML tag in POST data",
       "tags": [
         "xss",
         "injection"

@@ -3,7 +3,7 @@ Contributors: sajbersove
 Tags: firewall, security, waf, protection
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 Requires PHP: 7.4
 License: GPLv2 or later
 
@@ -15,18 +15,17 @@ Secure Owl Firewall is a fast, lightweight firewall plugin with an advanced rule
 
 Key features:
 
-* JSON-based rules — 100+ default rules covering SQLi, XSS, RCE, LFI, SSRF, Log4Shell, and more.
-* Transformation pipeline — urlDecode, lowercase, normalizePath, removeWhitespace, htmlEntityDecode, trim.
-* Six inspection targets — REQUEST_URI, QUERY_STRING, USER_AGENT, REFERER, COOKIE, POST.
-* MU-Plugin loader — runs before any regular plugin for earliest protection.
-* Rate limiting — optional transient-based IP and subnet banning.
-* Secure the login page with PIN protection and a honeypot field to block brute-force attacks.
-* IP whitelist with CIDR/subnet support (IPv4 + IPv6).
-* Per-rule toggle — disable individual rules from the admin panel without editing files.
-* File-based logging — 64MB cap with auto-rotation, protected log storage.
-* Configurable log retention policy for GDPR compliance.
-* Anonymize user IP addresses, enhancing privacy and GDPR compliance.
-* Filterable — extensive filter hooks for customization.
+* JSON-based rules — 100+ default rules covering SQLi, XSS, RCE, LFI, SSRF, Log4Shell, and more
+* Transformation pipeline — URL decode, lowercase, normalize path, remove whitespace, HTML entity decode, trim
+* Inspection targets — REQUEST_URI, QUERY_STRING, USER_AGENT, REFERER, COOKIE, and POST
+* MU-Plugin loader — runs before regular plugins for earliest protection
+* Rate limiting — optional transient-based IP and subnet banning
+* Login protection — PIN field and honeypot to block brute-force attacks
+* IP whitelist — CIDR/subnet support for both IPv4 and IPv6
+* Per-rule toggle — disable individual rules from the admin panel without editing files
+* File-based logging — 64MB cap with auto-rotation and protected storage
+* Log retention — configurable policy for GDPR compliance
+* IP anonymization — masks user IP addresses for enhanced privacy and GDPR compliance
 
 == Installation ==
 
@@ -80,3 +79,6 @@ Key features:
 = 1.0.6 =
 * Added rate-limited PIN authentication to the login page to mitigate brute-force attacks.
 * Added a honeypot trap to the login form to catch unsophisticated bots.
+
+= 1.0.7 =
+* Removed a few overly aggressive rules.
