@@ -8,8 +8,8 @@
 	Author URI: https://sajbersove.rs
 	Requires at least: 5.0
 	Tested up to: 6.9
-	Stable tag: 1.0.7
-	Version:    1.0.7
+	Stable tag: 1.0.8
+	Version:    1.0.8
 	Requires PHP: 7.4
 	Text Domain: secure-owl-firewall
 	License: GPLv2 or later
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 if ( ! defined( 'SSWAF_VERSION' ) ) {
-	define( 'SSWAF_VERSION', '1.0.7' );
+	define( 'SSWAF_VERSION', '1.0.8' );
 }
 
 if ( ! defined( 'SSWAF_FILE' ) ) {
@@ -428,6 +428,88 @@ function sswaf_is_whitelisted( $ip ) {
 	return false;
 }
 
+// ── IP Blacklist (file-based) ────────────────────────────────────────────────
+
+/**
+ * Path to the blacklist PHP file in uploads directory.
+ */
+function sswaf_blacklist_file() {
+	return sswaf_log_dir() . 'ip-blacklist.php';
+}
+
+/**
+ * Load blacklisted IPs/CIDRs from the PHP file.
+ * Returns an array of strings (IPs or CIDR notations).
+ * Opcache-friendly: the file is a PHP return statement.
+ */
+function sswaf_load_blacklist() {
+	$file = sswaf_blacklist_file();
+	if ( ! file_exists( $file ) ) {
+		return array();
+	}
+
+	$data = @include $file; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- file may not exist yet
+	return is_array( $data ) ? $data : array();
+}
+
+/**
+ * Save blacklist entries to the PHP file.
+ * Accepts an array of IP addresses and/or CIDR notations.
+ */
+function sswaf_save_blacklist( $entries ) {
+	$dir = sswaf_log_dir();
+
+	if ( ! is_dir( $dir ) ) {
+		wp_mkdir_p( $dir );
+	}
+
+	$content = "<?php if ( ! defined( 'ABSPATH' ) ) exit;\n";
+	$content .= "return array(\n";
+
+	foreach ( $entries as $entry ) {
+		$entry = trim( $entry );
+
+		if ( '' === $entry ) {
+			continue;
+		}
+
+		$content .= "\t'" . addslashes( $entry ) . "',\n";
+	}
+
+	$content .= ");\n";
+	@file_put_contents( sswaf_blacklist_file(), $content, LOCK_EX );
+
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- writing to uploads dir
+	if ( function_exists( 'opcache_invalidate' ) ) {
+		opcache_invalidate( sswaf_blacklist_file(), true );
+	}
+}
+
+/**
+ * Check if an IP is blacklisted (file + filter hook).
+ */
+function sswaf_is_blacklisted( $ip ) {
+	// File-based blacklist (opcache-friendly)
+	$file_list = sswaf_load_blacklist();
+
+	foreach ( $file_list as $entry ) {
+		if ( sswaf_ip_match( $ip, $entry ) ) {
+			return true;
+		}
+	}
+
+	// Filter hook (for developers adding IPs programmatically)
+	$hook_list = apply_filters( 'sswaf_ip_blacklist', array() );
+
+	foreach ( $hook_list as $entry ) {
+		if ( sswaf_ip_match( $ip, $entry ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function sswaf_init_log_dir() {
 
 	$log_dir = apply_filters( 'sswaf_log_dir', sswaf_log_dir() );
@@ -810,6 +892,24 @@ function sswaf_core() {
 	// ── Whitelist check ──────────────────────────────────────────────────
 	if ( sswaf_is_whitelisted( $remote_addr ) ) {
 		return;
+	}
+
+	// ── Blacklist check ──────────────────────────────────────────────────
+	if ( sswaf_is_blacklisted( $remote_addr ) ) {
+		$bl_rule = array(
+			'id'       => 0,
+			'severity' => 2,
+			'message'  => 'Request blocked by IP blacklist',
+		);
+		sswaf_log( $bl_rule, array(
+			'blacklisted',
+		), 'BLACKLIST', $remote_addr );
+
+		$header_status = apply_filters( 'sswaf_header_status', 'HTTP/1.1 403 Forbidden' );
+		header( $header_status );
+		header( 'Status: 403 Forbidden' );
+		header( 'Connection: Close' );
+		exit();
 	}
 
 	// ── Rate limit ban check (short-circuits all rule processing) ────────

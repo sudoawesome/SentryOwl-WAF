@@ -141,10 +141,41 @@ function sswaf_handle_actions() {
 			}
 		}
 
-		sswaf_save_whitelist( $valid );
+		sswaf_save_whitelist( array_values( array_unique( $valid ) ) );
 		wp_safe_redirect( add_query_arg( array(
 			'page' => 'sswaf-settings',
 			'whitelist_saved' => '1',
+		), admin_url( 'options-general.php' ) ) );
+		exit;
+	}
+
+	// Save IP blacklist
+	if ( isset( $_POST['sswaf_save_blacklist'] ) ) {
+		check_admin_referer( 'sswaf_blacklist_action' );
+		$raw = isset( $_POST['sswaf_ip_blacklist'] ) ? sanitize_textarea_field( wp_unslash( $_POST['sswaf_ip_blacklist'] ) ) : '';
+		$lines = explode( "\n", $raw );
+		$valid = array();
+		foreach ( $lines as $line ) {
+			$entry = trim( $line );
+			if ( '' === $entry ) {
+				continue;
+			}
+
+			// Validate: plain IP or CIDR notation
+			if ( strpos( $entry, '/' ) !== false ) {
+				$parts = explode( '/', $entry, 2 );
+				if ( filter_var( $parts[0], FILTER_VALIDATE_IP ) && is_numeric( $parts[1] ) ) {
+					$valid[] = $entry;
+				}
+			} elseif ( filter_var( $entry, FILTER_VALIDATE_IP ) ) {
+				$valid[] = $entry;
+			}
+		}
+
+		sswaf_save_blacklist( array_values( array_unique( $valid ) ) );
+		wp_safe_redirect( add_query_arg( array(
+			'page' => 'sswaf-settings',
+			'blacklist_saved' => '1',
 		), admin_url( 'options-general.php' ) ) );
 		exit;
 	}
@@ -425,6 +456,7 @@ function sswaf_settings_page() {
 	$mu_installed = isset( $_GET['mu_installed'] ) && '1' === $_GET['mu_installed'];
 	$mu_failed = isset( $_GET['mu_failed'] ) && '1' === $_GET['mu_failed'];
 	$whitelist_saved = isset( $_GET['whitelist_saved'] ) && '1' === $_GET['whitelist_saved'];
+	$blacklist_saved = isset( $_GET['blacklist_saved'] ) && '1' === $_GET['blacklist_saved'];
 	$pin_saved = isset( $_GET['pin_saved'] ) && '1' === $_GET['pin_saved'];
 	$pin_error = isset( $_GET['pin_error'] ) && '1' === $_GET['pin_error'];
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -448,6 +480,15 @@ function sswaf_settings_page() {
 		if ( $whitelist_saved ) : ?>
 			<div class="notice notice-success is-dismissible">
 				<p>IP whitelist saved successfully.</p>
+			</div>
+			<?php
+		endif; ?>
+
+		<?php
+
+		if ( $blacklist_saved ) : ?>
+			<div class="notice notice-success is-dismissible">
+				<p>IP blacklist saved successfully.</p>
 			</div>
 			<?php
 		endif; ?>
@@ -745,9 +786,27 @@ function sswaf_settings_page() {
 				<textarea name="sswaf_ip_whitelist" rows="6" cols="50"
 					style="font-family:monospace; font-size:13px; width:100%; max-width:500px;"
 					placeholder="One entry per line, e.g.&#10;203.0.113.5&#10;10.0.0.0/8&#10;2001:db8::/32"><?php echo esc_textarea( implode( "\n", $wl_entries ) ); ?></textarea>
-				<p class="description">One IP or CIDR range per line. Supports IPv4 and IPv6. Invalid entries are discarded
-					on save. Also available via the <code>sswaf_ip_whitelist</code> filter hook.</p>
+				<p class="description">One IP or CIDR range per line. Supports IPv4 and IPv6. Invalid entries and duplicates
+					are discarded on save. Also available via the <code>sswaf_ip_whitelist</code> filter hook.</p>
 				<?php submit_button( 'Save Whitelist', 'secondary', 'sswaf_save_whitelist' ); ?>
+			</form>
+		</div>
+
+		<br>
+
+		<!-- IP Blacklist -->
+		<div class="card" style="max-width:720px;">
+			<h2>IP Blacklist</h2>
+			<p>IP addresses and CIDR ranges listed here will be blocked immediately, before any rules run. Whitelist takes precedence.</p>
+			<form method="post">
+				<?php wp_nonce_field( 'sswaf_blacklist_action' ); ?>
+				<?php $bl_entries = sswaf_load_blacklist(); ?>
+				<textarea name="sswaf_ip_blacklist" rows="6" cols="50"
+					style="font-family:monospace; font-size:13px; width:100%; max-width:500px;"
+					placeholder="One entry per line, e.g.&#10;203.0.113.5&#10;10.0.0.0/8&#10;2001:db8::/32"><?php echo esc_textarea( implode( "\n", $bl_entries ) ); ?></textarea>
+				<p class="description">One IP or CIDR range per line. Supports IPv4 and IPv6. Invalid entries and duplicates
+					are discarded on save. Also available via the <code>sswaf_ip_blacklist</code> filter hook.</p>
+				<?php submit_button( 'Save Blacklist', 'secondary', 'sswaf_save_blacklist' ); ?>
 			</form>
 		</div>
 
@@ -1069,6 +1128,32 @@ function sswaf_settings_page() {
 
 							if ( ! empty( $wl_hook ) ) {
 								$parts[] = intval( count( $wl_hook ) ) . ' from filter hook';
+							}
+
+							echo ' (' . esc_html( implode( ', ', $parts ) ) . ')';
+						} else {
+							echo 'None';
+						}
+
+						?></td>
+					</tr>
+					<tr>
+						<td><strong>IP blacklist</strong></td>
+						<td><?php
+						$bl_file = sswaf_load_blacklist();
+						$bl_hook = apply_filters( 'sswaf_ip_blacklist', array() );
+						$bl_total = count( $bl_file ) + count( $bl_hook );
+
+						if ( $bl_total > 0 ) {
+							echo intval( $bl_total ) . ' entry(s)';
+							$parts = array();
+
+							if ( ! empty( $bl_file ) ) {
+								$parts[] = intval( count( $bl_file ) ) . ' from settings';
+							}
+
+							if ( ! empty( $bl_hook ) ) {
+								$parts[] = intval( count( $bl_hook ) ) . ' from filter hook';
 							}
 
 							echo ' (' . esc_html( implode( ', ', $parts ) ) . ')';

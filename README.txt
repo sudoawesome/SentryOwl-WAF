@@ -3,7 +3,7 @@ Contributors: sajbersove
 Tags: firewall, security, waf, protection
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 Requires PHP: 7.4
 License: GPLv2 or later
 
@@ -22,6 +22,7 @@ Key features:
 * Rate limiting — optional transient-based IP and subnet banning
 * Login protection — PIN field and honeypot to block brute-force attacks
 * IP whitelist — CIDR/subnet support for both IPv4 and IPv6
+* IP blacklist — CIDR/subnet support for both IPv4 and IPv6
 * Per-rule toggle — disable individual rules from the admin panel without editing files
 * File-based logging — 64MB cap with auto-rotation and protected storage
 * Log retention — configurable policy for GDPR compliance
@@ -37,6 +38,7 @@ Key features:
 == Filter Hooks ==
 
 * `sswaf_ip_whitelist` — array of IPs to bypass the firewall
+* `sswaf_ip_blacklist` — array of IPs to block before any rules run
 * `sswaf_trusted_proxies` — array of trusted proxy IPs for X-Forwarded-For
 * `sswaf_post_scanning` — enable POST data inspection (default: true)
 * `sswaf_rules_file` — path to the rules JSON file
@@ -82,3 +84,6 @@ Key features:
 
 = 1.0.7 =
 * Removed a few overly aggressive rules.
+
+= 1.0.8 =
+* Added IP blacklist with CIDR/subnet support (IPv4 + IPv6).
